@@ -29,6 +29,11 @@ app.post('/tasks', (req, res) => {
 
 
 app.delete('/tasks/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const result = tasks.filter(task => task.id !== id);
+  tasks = result;
+  res.status(201);
+  res.end()
 });
 
 app.listen(PORT, () => {
