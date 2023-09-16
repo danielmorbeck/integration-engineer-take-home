@@ -9,124 +9,81 @@ app.use(bodyParser.json());
 let tasks = [];
 let nextTaskId = 0;
 
-app.get('/tasks', (req, res, next) => {
-  try {
-    res.status(200);
-    res.json({
-      success: true,
-      data: tasks
+// Middlewares
+const validateTask = (req, res, next) => {
+  const { title, description } = req.body;
+  if (!title || !description) {
+    return res.status(422).json({
+      success: false,
+      status: 422,
+      message: 'Both title and description are required',
     });
-  } catch(e) {
-    next(e);
   }
+  next();
+};
+
+const findTaskById = (req, res, next) => {
+  const id = Number(req.params.id);
+  const task = tasks.find(task => task.id === id);
+
+  if (!task) {
+    return res.status(404).json({
+      success: false,
+      status: 404,
+      message: 'Task not found',
+    });
+  }
+
+  req.task = task;
+  next();
+};
+
+// Routes
+app.get('/tasks', (req, res) => {
+  res.status(200).json({
+    success: true,
+    data: tasks,
+  });
 });
 
-app.post('/tasks', (req, res) => {
-  try {
-    const {title, description} = req.body;
-    if (!title) {
-      throw new Error('property title is missing');
-    }
-  
-    if (!description) {
-      throw new Error('property description is missing');
-    }
-  
-    const newTask = {
-      id: nextTaskId + 1,
-      title: req.body.title,
-      description: req.body.description,
-    };
-  
-    tasks.push(newTask);
-    nextTaskId++;
-    res.status(200)
-    res.json({
-      success: true,
-      data: newTask
-    })
-  } catch(e) {
-    const errorMessage = e.message;
-    if (errorMessage === 'property title is missing' || 'property description is missing') {
-      res.status(422);
-      res.json({
-        success: false,
-        status: 422,
-        message: errorMessage
-      })
-      return
-    }
-    next(e);
-  }
+app.post('/tasks', validateTask, (req, res) => {
+  const { title, description } = req.body;
+  const newTask = {
+    id: ++nextTaskId,
+    title,
+    description,
+  };
+  tasks.push(newTask);
+  res.status(201).json({
+    success: true,
+    data: newTask,
+  });
 });
 
-app.put('/tasks/:id', (req, res, next) => {
-  try {
-    const id = Number(req.params.id);
-    const taskIndex = tasks.findIndex(task => task.id === id);
-  
-    if (taskIndex < 0) {
-      res.status(404);
-      res.json({
-        success: false,
-        status: 404,
-        message: 'sorry, task not found :('
-      })
-      return;
-    }
-  
-    if (req.body.title) {
-      tasks[taskIndex].title = req.body.title
-    }
-    if (req.body.description) {
-      tasks[taskIndex].description = req.body.description
-    }
-    res.json({
-      success: true,
-      data: tasks[taskIndex]
-    })
-  } catch(e) {
-    next(e)
-  }
-})
-
-app.delete('/tasks/:id', (req, res, next) => {
-  try {
-    const id = Number(req.params.id);
-    const findTask = tasks.find(task => task.id === id);
-  
-    if (!findTask) {
-      res.status(404);
-      res.json({
-        success: false,
-        status: 404,
-        message: 'sorry, task not found :('
-      })
-      return;
-    }
-  
-    const result = tasks.filter(task => task.id !== id);
-    tasks = result;
-    res.status(201);
-    res.json({
-      success: true,
-    })
-    res.end()
-  } catch(e) {
-    next(e)
-  }
+app.put('/tasks/:id', findTaskById, (req, res) => {
+  const { title, description } = req.body;
+  if (title) req.task.title = title;
+  if (description) req.task.description = description;
+  res.status(200).json({
+    success: true,
+    data: req.task,
+  });
 });
 
-const ErrorHandler = (err, req, res, next) => {
-  res.status(500);
-  res.json({
+app.delete('/tasks/:id', findTaskById, (req, res) => {
+  tasks = tasks.filter(task => task.id !== req.task.id);
+  res.status(204).end();
+});
+
+// Error handler middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
     success: false,
     status: 500,
     message: 'Something went wrong',
-  })
-}
-
-app.use(ErrorHandler);
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
