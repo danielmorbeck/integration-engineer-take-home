@@ -62,10 +62,10 @@ app.post('/tasks', validateTask, (req, res) => {
   });
 });
 
-app.put('/tasks/:id', findTaskById, (req, res) => {
+app.put('/tasks/:id', validateTask, findTaskById, (req, res) => {
   const { title, description } = req.body;
-  if (title) req.task.title = title;
-  if (description) req.task.description = description;
+  req.task.title = title 
+  req.task.description = description
   res.status(200).json({
     success: true,
     data: req.task,
