@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import DeleteIcon from './assets/delete.svg';
-import EditIcon from './assets/edit.svg';
-import CreateIcon from './assets/add.svg';
 import './App.css'
+import TaskComponent from './components/Task';
+import TaskForm from './components/TaskForm';
 
-type Task = {
+export type Task = {
   id: number,
   title: string,
   description: string
@@ -50,6 +49,7 @@ function App() {
       if (responseData.success) {
         await fetchTasks();
         setFormDataError({message: ''});
+        setFormData({ title: '', description: '' });
         return;
       }
 
@@ -79,6 +79,7 @@ function App() {
         await fetchTasks();
         setDisplayUpdateForm(false);
         setUpdateFormError({message: ''});
+        setUpdatedTask({id: 0, title: '', description: ''});
         return;
       }
 
@@ -104,83 +105,47 @@ function App() {
 
   return (
     <div className='card'>
-      <h1>Task Manager</h1>
+      <div className='card'>
+        <h2>Create Task</h2>
+        <TaskForm 
+          title={formData.title} 
+          onTitleChange={title => setFormData({ ...formData, title })} 
+          description={formData.description}
+          onDescriptionChange={description => setFormData({...formData, description})}
+          errorMessage={formDataError.message}
+          onCreate={createTask}
+        />
+      </div>
+      <h2>My tasks:</h2>
       <ul>
         {tasks.map(task => (
           <li key={task.id}>
            {updatedTask.id === task.id && displayUpdateForm ? 
-            <>
-              <input
-                type="text"
-                placeholder="Title"
-                value={updatedTask.title}
-                onChange={e => setUpdatedTask({ ...updatedTask, title: e.target.value })}
-              />
-              <input
-                type="text"
-                placeholder="Description"
-                value={updatedTask.description}
-                onChange={e => setUpdatedTask({ ...updatedTask, description: e.target.value })}
-              />
-              <p className='error-message'>{updateFormError.message}</p>
-              <button 
-                className='edit-button' 
-                onClick={() => {
-                  updateTask({id: updatedTask.id, title: updatedTask.title, description: updatedTask.description});
-                }}
-              >
-                <img src={CreateIcon} height={20} width={20} />
-              </button>
-            </> 
+            <TaskForm 
+              title={updatedTask.title} 
+              onTitleChange={title => setUpdatedTask({ ...updatedTask, title })} 
+              description={updatedTask.description}
+              onDescriptionChange={description => setUpdatedTask({...updatedTask, description})}
+              errorMessage={updateFormError.message}
+              onCreate={() => updateTask({id: updatedTask.id, title: updatedTask.title, description: updatedTask.description})}
+            />
           : 
-            <>
-              <h3>{task.title}</h3>
-              <p>{task.description}</p>
-              <div className='options'>
-                <button 
-                  className='delete-button' 
-                  onClick={() => deleteTask(task.id)}
-                >
-                  <img src={DeleteIcon} height={20} width={20} />
-                </button>
-                <button 
-                  className='edit-button' 
-                  onClick={() => {
-                    setDisplayUpdateForm(true);
-                    setUpdatedTask({
-                      id: task.id, 
-                      title: task.title, 
-                      description: task.description
-                    })
-                  }}
-                >
-                  <img src={EditIcon} height={20} width={20} />
-                </button>
-              </div>
-            </>
+            <TaskComponent 
+              task={task} 
+              onDelete={() => deleteTask(task.id)} 
+              onEdit={() => {
+                setDisplayUpdateForm(true);
+                setUpdatedTask({
+                  id: task.id, 
+                  title: task.title, 
+                  description: task.description
+                })
+              }} 
+            />
           }
           </li>
         ))}
       </ul>
-      <div className='card'>
-        <h2>Create Task</h2>
-        <input
-          type="text"
-          placeholder="Title"
-          value={formData.title}
-          onChange={e => setFormData({ ...formData, title: e.target.value })}
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          value={formData.description}
-          onChange={e => setFormData({ ...formData, description: e.target.value })}
-        />
-        <p className='error-message'>{formDataError.message}</p>
-        <button className='edit-button' onClick={createTask}>
-          <img src={CreateIcon} height={20} width={20} />
-        </button>
-      </div>
     </div>
   );
 }
