@@ -50,3 +50,71 @@ Regards,
 The Duda Solutions Engineering Team
 
 ## Add any instructions to get your submission running below this line.
+
+Project Setup and Running Instructions
+
+These instructions will guide you through setting up and running a project consisting of a server and a frontend application.
+
+Setup:
+
+1. Clone the Project Repository:
+
+   `git clone https://github.com/danielmorbeck/integration-engineer-take-home.git`
+
+   `cd integration-engineer-take-home`
+
+2. Install Dependencies:
+
+   Install the project dependencies using npm. This command will install the dependencies for both the server and the frontend.
+
+   `npm install`
+
+   `cd frontend && npm install`
+
+Running the Project:
+
+Server:
+
+1. Start the Server:
+
+   To start the server, run the following command from the root directory of the project:
+
+   `node index.js`
+
+   This will launch the server, and it will listen for incoming requests.
+
+Frontend Application:
+
+1. Navigate to the Frontend Directory:
+
+   Change your working directory to the frontend directory using the following command:
+
+   `cd frontend`
+
+2. Start the Development Server:
+
+   To start the development server for the frontend application, run the following command:
+
+   `npm run dev`
+
+   This will compile and run the frontend application in development mode. You will see output indicating that the development server is running.
+
+3. Access the Application:
+
+   Open a web browser and navigate to the local url provided by Vite.
+
+   e.g. `http://localhost:5173/`
+
+Project Shutdown:
+
+To stop the server and the frontend development server, you can use the following steps:
+
+1. Terminate the Server:
+
+   In the terminal where the server is running (root directory of the project), press Ctrl + C to stop the server.
+
+2. Terminate the Frontend Development Server:
+
+   In the terminal where the frontend development server is running (frontend directory), press Ctrl + C to stop the development server.
+
+That's it! You have successfully set up and run the project. You can now test the application locally.
