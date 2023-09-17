@@ -10,11 +10,10 @@ type ApiResponse<T> = {
 
 const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [formData, setFormData] = useState({ title: '', description: '' });
   const [formDataError, setFormDataError] = useState({message: ''});
   const [displayUpdateForm, setDisplayUpdateForm] = useState(false);
   const [updateFormError, setUpdateFormError] = useState({message: ''});
-  const [updatedTask, setUpdatedTask] = useState({id: 0, title: '', description: ''});
+  const [updatedTask, setUpdatedTask] = useState({id: 0});
 
   useEffect(() => {
     fetchTasks();
@@ -27,21 +26,20 @@ const useTasks = () => {
   };
 
   /* Complete the following functions to hit endpoints on your server */
-  const createTask = async () => {
+  const createTask = async ({title, description}: {title: string, description: string}) => {
     try {
       const response = await fetch('http://localhost:8000/tasks', { 
         headers: {
           "Content-Type": "application/json",
         }, 
         method: 'POST', 
-        body: JSON.stringify({'title': formData.title, 'description': formData.description})
+        body: JSON.stringify({'title': title, 'description': description})
       });
       const responseData: ApiResponse<Task> = await response.json();
 
       if (responseData.success) {
         await fetchTasks();
         setFormDataError({message: ''});
-        setFormData({ title: '', description: '' });
         return;
       }
 
@@ -71,7 +69,7 @@ const useTasks = () => {
         await fetchTasks();
         setDisplayUpdateForm(false);
         setUpdateFormError({message: ''});
-        setUpdatedTask({id: 0, title: '', description: ''});
+        setUpdatedTask({id: 0});
         return;
       }
 
@@ -96,12 +94,10 @@ const useTasks = () => {
 
   return {
     tasks,
-    formData,
     formDataError,
     displayUpdateForm,
     updateFormError,
     updatedTask,
-    setFormData,
     setUpdatedTask,
     setDisplayUpdateForm,
     createTask,

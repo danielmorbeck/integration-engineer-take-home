@@ -12,12 +12,10 @@ export type Task = {
 function App() {
   const {
     tasks, 
-    formData,
     formDataError, 
     displayUpdateForm, 
     updateFormError, 
     updatedTask,
-    setFormData,
     setUpdatedTask,
     setDisplayUpdateForm,
     createTask,
@@ -30,12 +28,10 @@ function App() {
       <div className='card'>
         <h2>Create Task</h2>
         <TaskForm 
-          title={formData.title} 
-          onTitleChange={title => setFormData({ ...formData, title })} 
-          description={formData.description}
-          onDescriptionChange={description => setFormData({...formData, description})}
           errorMessage={formDataError.message}
-          onCreate={createTask}
+          onSubmit={(title, description) => {
+            createTask({title, description});
+          }}
         />
       </div>
       <h2>My tasks:</h2>
@@ -44,12 +40,12 @@ function App() {
           <li key={task.id}>
            {updatedTask.id === task.id && displayUpdateForm ? 
             <TaskForm 
-              title={updatedTask.title} 
-              onTitleChange={title => setUpdatedTask({ ...updatedTask, title })} 
-              description={updatedTask.description}
-              onDescriptionChange={description => setUpdatedTask({...updatedTask, description})}
+              title={task.title}
+              description={task.description}
               errorMessage={updateFormError.message}
-              onCreate={() => updateTask({id: updatedTask.id, title: updatedTask.title, description: updatedTask.description})}
+              onSubmit={(title, description) => {
+                updateTask({id: task.id, title, description});
+              }}
             />
           : 
             <TaskComponent 
@@ -59,8 +55,6 @@ function App() {
                 setDisplayUpdateForm(true);
                 setUpdatedTask({
                   id: task.id, 
-                  title: task.title, 
-                  description: task.description
                 })
               }} 
             />
